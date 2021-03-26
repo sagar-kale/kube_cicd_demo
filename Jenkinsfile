@@ -33,7 +33,7 @@ pipeline {
     stage('Deploy App') {
       steps {
         script {
-          kubernetesDeploy(configs: "hellowhale.yml", kubeconfigId: "kube-certs")
+          kubernetesDeploy(configs: "hellowhale.yml", kubeconfigId: "d5cae5ee-16a4-4020-a02e-9aa883981210")
         }
       }
     }

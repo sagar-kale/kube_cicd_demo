@@ -13,7 +13,7 @@ pipeline {
       stage("Build image") {
             steps {
                 script {
-                    myapp =  docker.build("vamsijakkula/hellowhale:${env.BUILD_ID}")
+                    myapp =  docker.build("sgrkale/kube_cicd_demo:${env.BUILD_ID}")
                 }
             }
         }
@@ -23,7 +23,7 @@ pipeline {
                 script {
                     docker.withRegistry('https://registry.hub.docker.com', 'dockerhub') {
                             myapp.push("latest")
-                            myapp.push("1")
+                            myapp.push("${env.BUILD_ID}")
                     }
                 }
             }

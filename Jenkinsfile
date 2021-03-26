@@ -34,7 +34,7 @@ pipeline {
       steps {
         script {
           // kubernetesDeploy(configs: "hellowhale.yml", kubeconfigId: "mukubeconfig")
-          withKubeCredentials(kubectlCredentials: [[caCertificate: '', clusterName: '', contextName: '', credentialsId: 'mysecrete', namespace: '', serverUrl: 'https://192.168.49.2']]) 
+          withKubeCredentials(kubectlCredentials: [[caCertificate: '', clusterName: '', contextName: '', credentialsId: 'mysecrete', namespace: '', serverUrl: 'http://localhost:7777']]) 
           {
             sh 'kubectl create -f $WORKSPACE/hellowhale.yml'
           }

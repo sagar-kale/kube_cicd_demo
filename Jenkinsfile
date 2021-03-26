@@ -33,7 +33,11 @@ pipeline {
     stage('Deploy App') {
       steps {
         script {
-          kubernetesDeploy(configs: "hellowhale.yml", kubeconfigId: "mukubeconfig")
+          // kubernetesDeploy(configs: "hellowhale.yml", kubeconfigId: "mukubeconfig")
+           withKubeConfig ([credentialsId: 'kubeconfigyaml' , serverUrl: 'https://192.168.49.2:8443'])
+          {
+            sh 'kubectl create -f $WORKSPACE/hellowhale.yml'
+          }
         }
       }
     }

@@ -184,6 +184,8 @@ id -> dockerhub
 
 Save
 
+Restart jenikins -> sudo systemctl restart jenkins
+
 Now run follwing command in terminal
 ngrok http 8080
 

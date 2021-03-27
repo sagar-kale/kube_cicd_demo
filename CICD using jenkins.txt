@@ -1,0 +1,190 @@
+# CICD using jenkins
+
+# Prerequisits 
+
+
+	1. install Minikube & docker
+	2. install open jdk 8
+	3. install jenkins
+	4. sudo snap install ngrok
+
+# Add your user to the 'docker' group: 'sudo usermod -aG docker $USER && newgrp docker'
+# Add jenkins to 'docker' group 'sudo usermod -aG docker jenkins'
+
+# Start minikube -
+
+minikube config set driver docker
+minikube start
+
+Open jenkins on localhost:8080
+install suggested plugin
+
+Go to manage jenkins->manage plugins & install following plugins 
+
+1. Kubernetes contiues deployment
+2. Kubernetes Cli
+3. Kubernetes Client Api
+4. Kubernetes
+5. Docker Pipeline
+
+Click on install without restart.
+
+# Create new pipeline as Demo1 and setup github scm polling
+give your public repo path and make sure your repo contains dockerfile , Jenkinsfile and kubedeployment yml.
+
+# create jenkins service account 'kubectl create serviceaccount jenkins'
+'kubectl get secret'
+'kubectl describe secret <secreteName>'
+
+# eg - 
+
+rps@rps-virtual-machine:~$ kubectl describe secret jenkins-token-42dmn
+Name:         jenkins-token-42dmn
+Namespace:    default
+Labels:       <none>
+Annotations:  kubernetes.io/service-account.name: jenkins
+              kubernetes.io/service-account.uid: 6b586339-5d0c-4e9d-a320-b1de3e95dd5c
+
+Type:  kubernetes.io/service-account-token
+
+Data
+====
+namespace:  7 bytes
+token:      eyJhbGciOiJSUzI1NiIsImtpZCI6InVuZXA5V1N2RmU1ZnFULWRqMHFNMnBvM252UlhPTVRBeTRBd3ZfanlYdWsifQ.eyJpc3MiOiJrdWJlcm5ldGVzL3NlcnZpY2VhY2NvdW50Iiwia3ViZXJuZXRlcy5pby9zZXJ2aWNlYWNjb3VudC9uYW1lc3BhY2UiOiJkZWZhdWx0Iiwia3ViZXJuZXRlcy5pby9zZXJ2aWNlYWNjb3VudC9zZWNyZXQubmFtZSI6ImplbmtpbnMtdG9rZW4tNDJkbW4iLCJrdWJlcm5ldGVzLmlvL3NlcnZpY2VhY2NvdW50L3NlcnZpY2UtYWNjb3VudC5uYW1lIjoiamVua2lucyIsImt1YmVybmV0ZXMuaW8vc2VydmljZWFjY291bnQvc2VydmljZS1hY2NvdW50LnVpZCI6IjZiNTg2MzM5LTVkMGMtNGU5ZC1hMzIwLWIxZGUzZTk1ZGQ1YyIsInN1YiI6InN5c3RlbTpzZXJ2aWNlYWNjb3VudDpkZWZhdWx0OmplbmtpbnMifQ.RGE8aHxEcit5qaZUOXCgY0Gd5fn2YsWxpYQFM1L7JgqNfvidufCzeKJNCAAbpv-ZDTMF94i6cGSsGQ_26RIZpDR9OVuKFKuLcZ3FR9YQJYsN3Zv6ehHJTvVCKKoD1BRVRUYl8BuE-RFluH2_p8UdFLGkHaIAib0Nik3ngvnBiBLKbOmr3kWX9BurtxjCyFKGEhbrRr4b_iioA4jZQJSK5FYtxdulCmJxPnE7Hlo-EjUIQRN26wLcOdV3_-pOcf1Y_pFV1zd3MYIopWhjkNCMKZ3pSo20fwD2rgo8-RutA4TqkigLn57p6HTFFNh4smFe2NFgVCcbv6wQnEjoA_D-Jg
+ca.crt:     1111 bytes
+
+
+copy secrete text and create credential in jenkins->user->credentials->kind(secrete text) ->paste secrte text and give id as 'mysecret'
+
+#### In orde to use withKubeCredential in Jenkindfile to deploy yml file we need to access kubernetes server api using kube proxy
+
+kubectl proxy --port=7777 &
+
+
+#### GO to jenkins after plugin installation (http://localhost:8080/configureClouds/) manage jenkins -> manage Nodes and Clouds -> configure cloud -> select kubernetes in list.
+
+#### click kubernetes cloud details -> Kubernetes Url -> paste http://localhost:7777 (kubernetes proxy api which we started in above step) -> check direct connection -> Test (dont provide any credentials)
+o/p - Connected to Kubernetes v1.20.2
+
+check Disable https certificate check checkbox
+
+Jenkins url -> http://localhost:8080
+
+Pod Template :
+	Add Pod template:
+		Name - kube
+		Add Container:
+			Cotainer Template Name - jnlp-slave
+			Docker Image - jenkinsci/jnlp-slave
+			Working directory- /home/jenkins/
+			Command to run- /bin/sh -c
+			Arguments to pass to the command- cat (any command you can write here its just matter of testing)
+
+#### Click on save
+
+#### Create jenkins pipeline
+
+Click on New Item-> Select Pipeline Project -> OK
+General -> GitHub project -> Add your repository url (https://github.com/sagar-kale/kube_cicd_demo.git)
+Build Trigger -> Check GitHub hook trigger for GITScm polling
+Pipeline -> Definition -> Pipeline Script From SCM 
+	SCM -> GIT -> Repository Url (https://github.com/sagar-kale/kube_cicd_demo.git)  (If prive you will need to specify github creds.)
+	Branch - */Master
+	Script -> Jenkinsfile
+	Uncheck Lightweight checkout
+Clic on save
+
+#### Go to pipeline syntax on clicking on left side panel or http://localhost:8080/job/Demo/pipeline-syntax/   //Demo is pipeline name
+
+In sippet generator select follwoing fields 
+Sample Step - KubeConfig: Setup Kubernetes CLI (kubectl) OR select -> withKubeCredentials //any one of them is fine
+Kubernetes server endpoint -  http://localhost:7777 (this is kubernetes proxy api)
+Certificate of certificate authority - Leave Blank
+Credentials - LEAVE NONE
+
+Click on Generate Snippet
+
+kubeconfig(serverUrl: 'http://localhost:7777') {
+    // some block
+}
+ 
+replace some block comment with -> 
+
+ kubeconfig(serverUrl: 'http://localhost:7777') {
+            sh 'kubectl create -f $WORKSPACE/hellowhale.yml'
+            sh 'kubectl get pods'
+ }
+
+ paste it in jenkins file ->
+
+
+********************* start of JENKINSFILE ******************************
+
+ pipeline {
+
+  agent any
+
+  stages {
+
+    stage('Checkout Source') {
+      steps {
+        git url:'https://github.com/sagar-kale/kube_cicd_demo.git', branch:'master'
+      }
+    }
+    
+      stage("Build image") {
+            steps {
+                script {
+                    myapp =  docker.build("sgrkale/kube_cicd_demo:${env.BUILD_ID}")
+                }
+            }
+        }
+    
+      stage("Push image") {
+            steps {
+                script {
+                    docker.withRegistry('https://registry.hub.docker.com', 'dockerhub') {
+                            myapp.push("latest")
+                            myapp.push("${env.BUILD_ID}")
+                    }
+                }
+            }
+        }
+
+    
+    stage('Deploy App') {
+      steps {
+        script {
+          // kubernetesDeploy(configs: "hellowhale.yml", kubeconfigId: "mukubeconfig")
+       /*   withKubeCredentials(kubectlCredentials: [[caCertificate: '', clusterName: '', contextName: '', credentialsId: 'mysecrete', namespace: '', serverUrl: 'http://localhost:7777']]) 
+          {
+            sh 'kubectl create -f $WORKSPACE/hellowhale.yml'
+          } */
+          kubeconfig(serverUrl: 'http://localhost:7777') {
+            sh 'kubectl create -f $WORKSPACE/hellowhale.yml'
+            sh 'kubectl get pods'
+          }
+        }
+      }
+    }
+
+  }
+}
+
+
+********************* END OF JENKINSFILE ******************************
+
+Now run follwing command in terminal
+ngrok http 8080
+
+copy https url and create webhook
+
+https://9e639763de3d.ngrok.io/github-webhook/
+
+Make sure to run first build manually and then commit some files to master it will automatically trigger build
+
+
+
+
+
+

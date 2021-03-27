@@ -41,6 +41,10 @@ pipeline {
           kubeconfig(credentialsId: 'mysecret', serverUrl: 'http://localhost:7777') {
             sh 'kubectl create -f $WORKSPACE/hellowhale.yml'
             sh 'kubectl get pods'
+            sh 'minikube ip'
+            sh 'kubectl get svc'
+            echo 'open ip and svc port which is 31113 in browser'
+            echo 'deployment completed ........'
           }
         }
       }

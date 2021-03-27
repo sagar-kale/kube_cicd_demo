@@ -54,9 +54,9 @@ token:      eyJhbGciOiJSUzI1NiIsImtpZCI6InVuZXA5V1N2RmU1ZnFULWRqMHFNMnBvM252UlhP
 ca.crt:     1111 bytes
 
 
-copy secrete text and create credential in jenkins->user->credentials->kind(secrete text) ->paste secrte text and give id as 'mysecret'
+copy secrete text and create credential in jenkins->Jenkins(system)-> Global Creds->add credentials->kind(secrete text) ->paste secrte text and give id as 'mysecret'
 
-#### In orde to use withKubeCredential in Jenkindfile to deploy yml file we need to access kubernetes server api using kube proxy
+#### In orde to use withKubeCredential OR kubeConfig cli in Jenkindfile to deploy yml file we need to access kubernetes server api using kube proxy
 
 kubectl proxy --port=7777 &
 
@@ -100,7 +100,7 @@ In sippet generator select follwoing fields
 Sample Step - KubeConfig: Setup Kubernetes CLI (kubectl) OR select -> withKubeCredentials //any one of them is fine
 Kubernetes server endpoint -  http://localhost:7777 (this is kubernetes proxy api)
 Certificate of certificate authority - Leave Blank
-Credentials - LEAVE NONE
+Credentials - select mysecret from list (we created mysecrete credential i obove steps)
 
 Click on Generate Snippet
 
@@ -110,10 +110,14 @@ kubeconfig(serverUrl: 'http://localhost:7777') {
  
 replace some block comment with -> 
 
- kubeconfig(serverUrl: 'http://localhost:7777') {
+ kubeconfig(credentialsId: 'mysecret', serverUrl: 'http://localhost:7777') {
             sh 'kubectl create -f $WORKSPACE/hellowhale.yml'
             sh 'kubectl get pods'
- }
+            sh 'minikube ip'
+            sh 'kubectl get svc'
+            echo 'open ip and svc port which is 31113 in browser'
+            echo 'deployment completed ........'
+          }
 
  paste it in jenkins file ->
 
@@ -160,9 +164,13 @@ replace some block comment with ->
           {
             sh 'kubectl create -f $WORKSPACE/hellowhale.yml'
           } */
-          kubeconfig(serverUrl: 'http://localhost:7777') {
+          kubeconfig(credentialsId: 'mysecret', serverUrl: 'http://localhost:7777') {
             sh 'kubectl create -f $WORKSPACE/hellowhale.yml'
             sh 'kubectl get pods'
+            sh 'minikube ip'
+            sh 'kubectl get svc'
+            echo 'open ip and svc port which is 31113 in browser'
+            echo 'deployment completed ........'
           }
         }
       }
@@ -194,6 +202,19 @@ copy https url and create webhook
 https://9e639763de3d.ngrok.io/github-webhook/
 
 Make sure to run first build manually and then commit some files to master it will automatically trigger build
+
+Check if deployment is success
+
+minikube ip
+kubectl get svc
+
+open minikube ip with svc port in browser and you will see app message hello blue whale
+
+http://192.168.49.2:31113/
+
+
+******************** END ***************************
+
 
 
 

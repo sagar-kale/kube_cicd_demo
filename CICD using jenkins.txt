@@ -215,6 +215,11 @@ http://192.168.49.2:31113/
 
 ******************** END ***************************
 
+Useful Commands 
+
+Remove all docker images:
+docker rmi $(docker images | awk '{print $1":"$2}')
+
 
 
 

@@ -7,11 +7,11 @@
 #### create service aaccount as jenkins
 ```` kubectl create serviceaccount jenkins ````
 
-Check using below command
+#### Check using below command
 
 ```` kubectl get secret````
 
-Copy secrete using 
+#### Copy secrete using 
 
 ```` kubectl describe secret <secretename> ````
 
@@ -22,7 +22,7 @@ add copied text in secrete textbox give id as myscrete
 
 ```` kubectl proxy --port=7777 & ````
 
-go to jenkins select project demo1 ->pipeline syntax ->snippet Generator-> withKubeCredential and all kubernetes api endpoint as
+#### Go to jenkins select project demo1 ->pipeline syntax ->snippet Generator-> withKubeCredential and all kubernetes api endpoint as
 
 ```` http://localhost:7777 ```` then select credential mysecrete leave rest fields blank and click generate snippet then copy and paste it in Jenkinsfile Deploy section
 

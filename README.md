@@ -1,4 +1,4 @@
-# kube_cicd_demo
+# Kubernetes CICD Pipeline with Jenkins
 ## Give access jenkins to following path using adding jenkins to its accessible group
 ```` kubectl view config ````
 

@@ -10,6 +10,7 @@
 
 # Add your user to the 'docker' group: 'sudo usermod -aG docker $USER && newgrp docker'
 # Add jenkins to 'docker' group 'sudo usermod -aG docker jenkins'
+# Give Jenkins permission to access minikube certs ---  'sudo chown -R jenkins:jenkins /home/sagar/.minikube/'
 
 # Start minikube -
 
@@ -33,6 +34,7 @@ Click on install without restart.
 give your public repo path and make sure your repo contains dockerfile , Jenkinsfile and kubedeployment yml.
 
 # create jenkins service account 'kubectl create serviceaccount jenkins'
+
 'kubectl get secret'
 'kubectl describe secret <secreteName>'
 

@@ -26,15 +26,13 @@ spec:
 apiVersion: v1
 kind: Service 
 metadata:
-  name: hello-whale-svc
+  name: hello-blue-whale-svc
   labels:
     app: hello-whale-app
 spec:
   selector:
     app: hello-whale-app
-    version: blue
-  type: NodePort
+  type: LoadBalancer
   ports:
-  - nodePort: 31113
-    port: 80
+  - port: 80
     targetPort: 80

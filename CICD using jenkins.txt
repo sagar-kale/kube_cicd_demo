@@ -9,6 +9,7 @@
 	4. sudo snap install ngrok
 
 # Add your user to the 'docker' group: 'sudo usermod -aG docker $USER && newgrp docker'
+Give user permission to miniube - sudo chown -R $USER $HOME/.minikube; chmod -R u+wrx $HOME/.minikube
 # Add jenkins to 'docker' group 'sudo usermod -aG docker jenkins'
 # Give Jenkins permission to access minikube certs ---  'sudo chown -R jenkins:jenkins /home/sagar/.minikube/'
 

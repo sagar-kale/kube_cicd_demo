@@ -2,7 +2,9 @@
 ## Give access jenkins to following path using adding jenkins to its accessible group
 ```` kubectl view config ````
 
-```` sudo chown -R jenkins:jenkins /home/sagar/.minikube/````
+```` sudo chown -R jenkins:jenkins /home/sagar/.minikube/
+     sudo chown -R $USER $HOME/.minikube; chmod -R u+wrx $HOME/.minikube
+````
 
 #### Create service aaccount as jenkins
 ```` kubectl create serviceaccount jenkins ````

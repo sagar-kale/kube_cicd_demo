@@ -36,6 +36,6 @@ add copied text in secrete textbox give id as myscrete
           }
 ````
 
-#### Note - In order to use withKubeCredential install jenkins plugin ( Kubernetes CLI )
+#### Note - In order to use withKubeCredential install jenkins plugin ( Kubernetes CLI ).
 
 
